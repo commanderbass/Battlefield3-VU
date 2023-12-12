@@ -1,0 +1,42 @@
+---
+version: '3.6'
+
+volumes:
+  battlefield3:
+  instance:
+
+services:
+  # Creates and launches an image of Venice Unleashed
+  #
+  # The Battlefield 3 install has to be provided at /vu/battlefield
+  # The Instance path at /vu/instance/ requires the server.key and server config unter the subpath Admin
+  # as well as a writable Logs subpath
+  veniceunleashed:
+    image: veniceunleashed
+    build:
+      context: .
+      dockerfile: veniceunleashed.Dockerfile
+    volumes:
+      - battlefield3:/vu/battlefield
+      - instance:/vu/instance
+    environment:
+      ORIGIN_EMAIL: foobar@example.com
+      ORIGIN_PASSWORD: YourHopefullyLongPassword
+      EXTRA_ARGS: "-high60"
+    ports:
+      - 7948:7948/udp
+      - 25200:25200/udp
+      - 47200:47200/tcp
+
+  # Use the otool to download the required Battlefield 3 files for your server
+  #
+  # Execute the following command:
+  # `docker-compose -f venice-unleashed.yml run otool`,
+  # which will ask you for your origin login/password and download the
+  # files into the path that is mounted as /data
+  otool:
+    build:
+      context: .
+      dockerfile: otool.Dockerfile
+    volumes:
+      - battlefield3:/data
